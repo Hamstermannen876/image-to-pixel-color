@@ -1,5 +1,6 @@
 use image::{self, GenericImageView, Rgba};
-use std::{collections::HashMap, env};
+use std::{collections::HashMap, env, path};
+use csv;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -7,7 +8,7 @@ fn main() {
         panic!("invalid command line argument count, only input image file");
     }
 
-    let image_path = args[1].as_str();
+    let image_path = path::PathBuf::from(args[1].as_str());
 
     let img = image::ImageReader::open(image_path).unwrap().decode().unwrap();
 
@@ -21,7 +22,11 @@ fn main() {
         }
     }
 
-    for value in colors {
-        println!("{:?}", value);
+    let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
+    writer.write_record(&["color", "count"]).unwrap();
+
+    for (color, count) in colors {
+        writer.write_record(&[format!("{:?}", color), format!("{count}")]).unwrap();
     }
+
 }
