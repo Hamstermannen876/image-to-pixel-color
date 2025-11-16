@@ -1,4 +1,4 @@
-use image::{self, GenericImageView, Pixel, Rgba};
+use image::{self, DynamicImage, GenericImageView, Pixel, Rgba};
 use std::{collections::HashMap, env, path};
 use csv;
 
@@ -19,22 +19,51 @@ fn rgb_to_hex (rgba: Rgba<u8>) -> String {
     return hex;
 }
 
+fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
+    let mut edges: u32 = 0;
+        
+    if x != img.width() - 1 && img.get_pixel(x + 1, y) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
+    
+    if x != 0 && img.get_pixel(x - 1, y) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
 
-fn get_pixel_colors (image_path: path::PathBuf) -> HashMap<Rgba<u8>, u32> {
+    if y != img.height() - 1 && img.get_pixel(x, y + 1) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
+    
+    if y != 0 && img.get_pixel(x, y - 1) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
+
+    return edges;
+}
+
+
+fn get_pixel_info (image_path: path::PathBuf) -> HashMap<Rgba<u8>, (u32, u32)> {
     let img = image::ImageReader::open(image_path).unwrap().decode().unwrap();
 
-    let mut colors: HashMap<Rgba<u8>, u32> = HashMap::new();
+    let mut colors: HashMap<Rgba<u8>, (u32, u32)> = HashMap::new();
 
-    for (_, _, pixel_color) in img.pixels() {
+    for (x, y, pixel_color) in img.pixels() {
+        let edges = edges_of_pixel(x, y, &img);
+
         if colors.contains_key(&pixel_color) {
-            *colors.get_mut(&pixel_color).unwrap() += 1;
+            let (count, rectancles) = colors.get_mut(&pixel_color).unwrap();
+            *count += 1;
+            *rectancles += edges;
+
         } else {
-            colors.insert(pixel_color, 1);
+            colors.insert(pixel_color, (1, edges));
         }
     }
 
     return colors;
 }
+
+
 
 
 fn main() {
@@ -45,19 +74,25 @@ fn main() {
 
     let image_path = path::PathBuf::from(args[1].as_str());
 
-    let colors = get_pixel_colors(image_path); 
+    let colors = get_pixel_info(image_path); 
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
 
-    let header = &["color", "count"];
+    let header = &["color", "count", "edges"];
     writer.write_record(header).unwrap();
 
 
-    for (color, count) in colors {
+    for (color, (count, edges)) in colors {
         let hex = rgb_to_hex(color);
-        let str_count = format!("{count}");
 
-        let row = &[hex, str_count];
+        if hex == "#00000000" {
+            continue;
+        }
+
+        let str_count = format!("{count}");
+        let str_edges = format!("{edges}");
+
+        let row = &[hex, str_count, str_edges];
 
         writer.write_record(row).unwrap();
     }
