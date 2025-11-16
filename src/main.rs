@@ -1,6 +1,23 @@
-use image::{self, GenericImageView, Rgba};
+use image::{self, GenericImageView, Pixel, Rgba};
 use std::{collections::HashMap, env, path};
 use csv;
+
+fn rgb_to_hex (rgba: Rgba<u8>) -> String {
+    println!("{:?}", rgba);
+
+    let mut hex = String::from("#");
+
+    for value in rgba.channels() {
+        if value < &10u8 {
+            hex.push('0');
+        }
+
+        hex.push_str(format!("{:x}", value).as_str());
+    
+    }
+
+    return hex;
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -26,7 +43,7 @@ fn main() {
     writer.write_record(&["color", "count"]).unwrap();
 
     for (color, count) in colors {
-        writer.write_record(&[format!("{:?}", color), format!("{count}")]).unwrap();
+        writer.write_record(&[rgb_to_hex(color), format!("{count}")]).unwrap();
     }
 
 }
