@@ -19,6 +19,24 @@ fn rgb_to_hex (rgba: Rgba<u8>) -> String {
     return hex;
 }
 
+
+fn get_pixel_colors (image_path: path::PathBuf) -> HashMap<Rgba<u8>, u32> {
+    let img = image::ImageReader::open(image_path).unwrap().decode().unwrap();
+
+    let mut colors: HashMap<Rgba<u8>, u32> = HashMap::new();
+
+    for (_, _, pixel_color) in img.pixels() {
+        if colors.contains_key(&pixel_color) {
+            *colors.get_mut(&pixel_color).unwrap() += 1;
+        } else {
+            colors.insert(pixel_color, 1);
+        }
+    }
+
+    return colors;
+}
+
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
@@ -27,17 +45,7 @@ fn main() {
 
     let image_path = path::PathBuf::from(args[1].as_str());
 
-    let img = image::ImageReader::open(image_path).unwrap().decode().unwrap();
-
-    let mut colors: HashMap<Rgba<u8>, u32> = HashMap::new();
-
-    for (_, _, pixel) in img.pixels() {
-        if colors.contains_key(&pixel) {
-            *colors.get_mut(&pixel).unwrap() += 1;
-        } else {
-            colors.insert(pixel, 1);
-        }
-    }
+    let colors = get_pixel_colors(image_path); 
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
 
