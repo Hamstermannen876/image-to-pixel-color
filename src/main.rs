@@ -73,10 +73,27 @@ fn get_pixel_info(image_path: path::PathBuf) -> HashMap<Rgba<u8>, (u32, u32)> {
     return colors;
 }
 
+fn down_scale_image(image: DynamicImage, new_resolution: String) {
+
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        panic!("invalid command line argument count, only input image file");
+
+    match args.len() {
+        1 => panic!("too few command line arguments, a image file path is required"),
+        2 => {},
+        _ => {
+            for i in (2..args.len()).step_by(2) {
+                match args[i].as_str() {
+                    "-s" => {},
+                    "--size" => {},
+                    "-a" => {},
+                    "--accuracy" => {},
+                    _ => panic!("Invalid command line argument"),
+                }
+            }
+        }
     }
 
     let image_path = path::PathBuf::from(args[1].as_str());
