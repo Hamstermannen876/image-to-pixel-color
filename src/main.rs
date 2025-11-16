@@ -8,7 +8,7 @@ fn rgb_to_hex(rgba: Rgba<u8>) -> String {
     let mut hex = String::from("#");
 
     for value in rgba.channels() {
-        if value < &10u8 {
+        if value < &16u8 {
             hex.push('0');
         }
 
@@ -88,18 +88,26 @@ fn main() {
     let header = &["color", "count", "3D-requirement"];
     writer.write_record(header).unwrap();
 
-    for (color, (count, edges)) in colors {
+    let mut total_count: u32 = 0;
+    let mut total_slices: u32 = 0;
+
+    for (color, (count, slices)) in colors {
         let hex = rgb_to_hex(color);
 
         if hex == "#00000000" {
             continue;
         }
 
-        let str_count = format!("{count}");
-        let str_edges = format!("{edges}");
+        total_count += count;
+        total_slices += slices;
 
-        let row = &[hex, str_count, str_edges];
+        let str_count = format!("{count}");
+        let str_slices = format!("{slices}");
+
+        let row = &[hex, str_count, str_slices];
 
         writer.write_record(row).unwrap();
     }
+
+    writer.write_record(&["total", format!("{total_count}").as_str(), format!("{total_slices}").as_str()]).unwrap();
 }
