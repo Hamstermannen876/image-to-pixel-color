@@ -1,5 +1,5 @@
 use csv;
-use image::{self, DynamicImage, GenericImageView, Pixel, Rgba};
+use image::{self, DynamicImage, GenericImageView, Pixel, Rgba, imageops::FilterType::Nearest};
 use std::{collections::HashMap, env, path};
 
 fn rgb_to_hex(rgba: Rgba<u8>) -> String {
@@ -48,12 +48,7 @@ fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
     return edges;
 }
 
-fn get_pixel_info(image_path: path::PathBuf) -> HashMap<Rgba<u8>, (u32, u32)> {
-    let img = image::ImageReader::open(image_path)
-        .unwrap()
-        .decode()
-        .unwrap();
-
+fn get_pixel_info(img: &DynamicImage) -> HashMap<Rgba<u8>, (u32, u32)> {
     let mut colors: HashMap<Rgba<u8>, (u32, u32)> = HashMap::new();
     let cube_requirement: u32 = 8;
 
@@ -73,32 +68,54 @@ fn get_pixel_info(image_path: path::PathBuf) -> HashMap<Rgba<u8>, (u32, u32)> {
     return colors;
 }
 
-fn down_scale_image(image: DynamicImage, new_resolution: String) {
+fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
+    let res: Vec<&str> = new_resolution.split("x").collect();
+    if res.len() != 2 {
+        panic!("invalid downscale resolution, please use ex. 16x16")
+    }
 
+    let width = res[0]
+        .parse::<u32>()
+        .expect("downscale resolution has to consist of integers");
+    let height = res[1]
+        .parse::<u32>()
+        .expect("downscale resolution has to consist of integers");
+
+    let resized_image = img.resize(width, height, Nearest);
+
+    let new_file_path = path::PathBuf::from(format!("./{}-image.png", new_resolution));
+    match resized_image.save(new_file_path) {
+        Ok(_) => {}
+        Err(msg) => println!("{msg}, BUUUUU"),
+    }
+
+    return resized_image;
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    match args.len() {
-        1 => panic!("too few command line arguments, a image file path is required"),
-        2 => {},
-        _ => {
-            for i in (2..args.len()).step_by(2) {
-                match args[i].as_str() {
-                    "-s" => {},
-                    "--size" => {},
-                    "-a" => {},
-                    "--accuracy" => {},
-                    _ => panic!("Invalid command line argument"),
-                }
-            }
-        }
+    if args.len() < 2 {
+        panic!("too few command line arguments, a image file path is required")
     }
 
     let image_path = path::PathBuf::from(args[1].as_str());
+    let mut img = image::ImageReader::open(image_path)
+        .unwrap()
+        .decode()
+        .unwrap();
 
-    let colors = get_pixel_info(image_path);
+    for i in (2..args.len()).step_by(2) {
+        match args[i].as_str() {
+            "-s" => img = down_scale_image(&img, &args[i + 1]),
+            "--size" => img = down_scale_image(&img, &args[i + 1]),
+            "-a" => {}
+            "--accuracy" => {}
+            _ => panic!("Invalid command line argument"),
+        }
+    }
+
+    let colors = get_pixel_info(&img);
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
 
@@ -126,5 +143,11 @@ fn main() {
         writer.write_record(row).unwrap();
     }
 
-    writer.write_record(&["total", format!("{total_count}").as_str(), format!("{total_slices}").as_str()]).unwrap();
+    writer
+        .write_record(&[
+            "total",
+            format!("{total_count}").as_str(),
+            format!("{total_slices}").as_str(),
+        ])
+        .unwrap();
 }
