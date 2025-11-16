@@ -48,8 +48,8 @@ fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
     return edges;
 }
 
-fn get_pixel_info(img: &DynamicImage) -> HashMap<Rgba<u8>, (u32, u32)> {
-    let mut colors: HashMap<Rgba<u8>, (u32, u32)> = HashMap::new();
+fn get_pixel_info(img: &DynamicImage) -> HashMap<Rgba<u8>, (u32, u32, u32)> {
+    let mut colors: HashMap<Rgba<u8>, (u32, u32, u32)> = HashMap::new();
     let cube_requirement: u32 = 8;
 
     for (x, y, pixel_color) in img.pixels() {
@@ -57,11 +57,12 @@ fn get_pixel_info(img: &DynamicImage) -> HashMap<Rgba<u8>, (u32, u32)> {
         let rectangle = edges + cube_requirement;
 
         if colors.contains_key(&pixel_color) {
-            let (count, rectancles) = colors.get_mut(&pixel_color).unwrap();
+            let (count, edge, rectancles) = colors.get_mut(&pixel_color).unwrap();
             *count += 1;
+            *edge += edges;
             *rectancles += rectangle;
         } else {
-            colors.insert(pixel_color, (1, rectangle));
+            colors.insert(pixel_color, (1, edges, rectangle));
         }
     }
 
@@ -119,13 +120,14 @@ fn main() {
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
 
-    let header = &["color", "count", "3D-requirement"];
+    let header = &["color", "count", "edges", "3D-requirement"];
     writer.write_record(header).unwrap();
 
     let mut total_count: u32 = 0;
     let mut total_slices: u32 = 0;
+    let mut total_edges: u32 = 0;
 
-    for (color, (count, slices)) in colors {
+    for (color, (count, edges, slices)) in colors {
         let hex = rgb_to_hex(color);
 
         if hex == "#00000000" {
@@ -134,11 +136,13 @@ fn main() {
 
         total_count += count;
         total_slices += slices;
+        total_edges += edges;
 
         let str_count = format!("{count}");
         let str_slices = format!("{slices}");
+        let str_edges = format!("{edges}");
 
-        let row = &[hex, str_count, str_slices];
+        let row = &[hex, str_count, str_edges, str_slices];
 
         writer.write_record(row).unwrap();
     }
@@ -147,6 +151,7 @@ fn main() {
         .write_record(&[
             "total",
             format!("{total_count}").as_str(),
+            format!("{total_edges}").as_str(),
             format!("{total_slices}").as_str(),
         ])
         .unwrap();
