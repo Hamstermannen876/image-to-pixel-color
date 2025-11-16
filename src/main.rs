@@ -23,17 +23,25 @@ fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
 
     if x == 0 || x == img.width() - 1 {
         edges += 1;
-    } else if img.get_pixel(x + 1, y) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
-    } else if img.get_pixel(x - 1, y) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
     }
 
     if y == 0 || y == img.height() - 1 {
         edges += 1;
-    } else if img.get_pixel(x, y + 1) == Rgba([0, 0, 0, 0]) {
+    }
+
+    if x != img.width() - 1 && img.get_pixel(x + 1, y) == Rgba([0, 0, 0, 0]) {
         edges += 1;
-    } else if img.get_pixel(x, y - 1) == Rgba([0, 0, 0, 0]) {
+    }
+
+    if x != 0 && img.get_pixel(x - 1, y) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
+
+    if y != img.height() - 1 && img.get_pixel(x, y + 1) == Rgba([0, 0, 0, 0]) {
+        edges += 1;
+    }
+
+    if y != 0 && img.get_pixel(x, y - 1) == Rgba([0, 0, 0, 0]) {
         edges += 1;
     }
 
