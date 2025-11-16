@@ -40,10 +40,18 @@ fn main() {
     }
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
-    writer.write_record(&["color", "count"]).unwrap();
+
+    let header = &["color", "count"];
+    writer.write_record(header).unwrap();
+
 
     for (color, count) in colors {
-        writer.write_record(&[rgb_to_hex(color), format!("{count}")]).unwrap();
+        let hex = rgb_to_hex(color);
+        let str_count = format!("{count}");
+
+        let row = &[hex, str_count];
+
+        writer.write_record(row).unwrap();
     }
 
 }
