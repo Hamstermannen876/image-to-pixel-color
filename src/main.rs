@@ -106,7 +106,8 @@ fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
 
     let resized_image = img.resize(width, height, Nearest);
 
-    let new_file_path = path::PathBuf::from(format!("./{}-image.png", new_resolution));
+    let new_file_path =
+        path::PathBuf::from(format!("./downscaled_images/{}-image.png", new_resolution));
     match resized_image.save(new_file_path) {
         Ok(_) => {}
         Err(msg) => println!("{msg}, BUUUUU"),
@@ -116,6 +117,23 @@ fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
 }
 
 fn modify_colors(map: &mut HashMap<Rgba<u8>, (u32, u32, u32)>) {}
+
+fn compare_colors(color1: Rgba<u8>, color2: Rgba<u8>) -> u32 {
+    let [red1, green1, blue1, alpha1] = color1.channels() else {
+        panic!("rgba did not have 4 u8 values")
+    };
+
+    let [red2, green2, blue2, alpha2] = color2.channels() else {
+        panic!("rgba did not have 4 u8 values")
+    };
+
+    let difference = (red1 - red2) as u32 * (red1 - red2) as u32
+        + (green1 - green2) as u32 * (green1 - green2) as u32
+        + (blue1 - blue2) as u32 * (blue1 - blue2) as u32
+        + (alpha1 - alpha2) as u32 * (alpha1 - alpha2) as u32;
+
+    return difference;
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
