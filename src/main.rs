@@ -1,8 +1,10 @@
 use csv;
-use image::{self, DynamicImage, GenericImageView, Pixel, Rgba, imageops::FilterType::Nearest};
+use image::{
+    self, DynamicImage, GenericImageView, Pixel, Rgb, Rgba, imageops::FilterType::Nearest,
+};
 use std::{collections::HashMap, env, path};
 
-fn rgb_to_hex(rgba: Rgba<u8>) -> String {
+fn rgba_to_hex(rgba: Rgba<u8>) -> String {
     println!("{:?}", rgba);
 
     let mut hex = String::from("#");
@@ -16,6 +18,26 @@ fn rgb_to_hex(rgba: Rgba<u8>) -> String {
     }
 
     return hex;
+}
+
+fn hex_to_rbga(hex: &str) -> Rgba<u8> {
+    let red = hex[0..2]
+        .parse::<u8>()
+        .expect("could not parse hex to rbga (invalid red)");
+
+    let green = hex[2..4]
+        .parse::<u8>()
+        .expect("could not parse hex to rbga (invalid green)");
+
+    let blue = hex[4..6]
+        .parse::<u8>()
+        .expect("could not parse hex to rbga (invalid blue)");
+
+    let alpha = hex[6..8]
+        .parse::<u8>()
+        .expect("could not parse hex to rbga (invalid alpha)");
+
+    return Rgba([red, green, blue, alpha]);
 }
 
 fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
@@ -93,8 +115,11 @@ fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
     return resized_image;
 }
 
+fn modify_colors(map: &mut HashMap<Rgba<u8>, (u32, u32, u32)>) {}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let mut accuracy = -1;
 
     if args.len() < 2 {
         panic!("too few command line arguments, a image file path is required")
@@ -110,13 +135,25 @@ fn main() {
         match args[i].as_str() {
             "-s" => img = down_scale_image(&img, &args[i + 1]),
             "--size" => img = down_scale_image(&img, &args[i + 1]),
-            "-a" => {}
-            "--accuracy" => {}
-            _ => panic!("Invalid command line argument"),
+            "-a" => {
+                accuracy = args[i + 1]
+                    .parse()
+                    .expect("invalid input after -a, has to be a positive int")
+            }
+            "--accuracy" => {
+                accuracy = args[i + 1]
+                    .parse()
+                    .expect("invalid input after -a, has to be a positive int")
+            }
+            rest => panic!("Invalid command line argument, could not find '{}'", rest),
         }
     }
 
-    let colors = get_pixel_info(&img);
+    let mut colors = get_pixel_info(&img);
+
+    if accuracy != -1 {
+        modify_colors(&mut colors);
+    }
 
     let mut writer = csv::Writer::from_path("color_data.csv").expect("failed to create csv file");
 
@@ -128,7 +165,7 @@ fn main() {
     let mut total_edges: u32 = 0;
 
     for (color, (count, edges, slices)) in colors {
-        let hex = rgb_to_hex(color);
+        let hex = rgba_to_hex(color);
 
         if hex == "#00000000" {
             continue;
