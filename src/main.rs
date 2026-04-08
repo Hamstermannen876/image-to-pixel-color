@@ -127,6 +127,7 @@ fn compare_colors(color1: Rgba<u8>, color2: Rgba<u8>) -> u32 {
         panic!("rgba did not have 4 u8 values")
     };
 
+    // can range from 0 to 260100
     let difference = (red1 - red2) as u32 * (red1 - red2) as u32
         + (green1 - green2) as u32 * (green1 - green2) as u32
         + (blue1 - blue2) as u32 * (blue1 - blue2) as u32

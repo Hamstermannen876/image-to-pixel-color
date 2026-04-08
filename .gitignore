@@ -6,3 +6,6 @@
 #image folders
 test_images
 downscaled_images
+
+#mac stuff
+.DS_store
