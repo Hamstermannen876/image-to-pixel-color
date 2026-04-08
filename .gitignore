@@ -1,1 +1,8 @@
 /target
+
+# vscode stuff
+.vscode
+
+#image folders
+test_images
+downscaled_images
