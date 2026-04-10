@@ -6,6 +6,7 @@ Download the project and the run:
 ```
 cargo run --release <PNGF_filepath> 
 ```
+This will output a ```color_data.csv``` that contains the colors, their count and the 3D-requirement (explained below)
 
 ### Flags / Command-line arguments
 #### -r | --resolution <resolution>
@@ -14,8 +15,6 @@ The downscaled image will apear in the directory ```downscaled_images```, showca
 
 #### -m | --max
 Reduces the amount of colors in the image to the number specified. If the number provided is larger than the images color amount this flag will simply be ignored. This will also produce a showcase image located in the directory ```recolored_images```.
-
-This will output a ```color_data.csv``` that contains the colors, their count and the 3D-requirement (explained below)
 
 ## 3D-requirement
 ### Formula
