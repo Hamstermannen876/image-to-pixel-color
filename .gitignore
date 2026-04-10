@@ -4,10 +4,11 @@
 # vscode stuff
 .vscode
 
-#image folders
+#image stuff
 test_images
 downscaled_images
 recolored_images
+color_data.csv
 
 #mac stuff
 .DS_store

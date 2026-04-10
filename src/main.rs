@@ -38,31 +38,26 @@ fn hex_to_rbga(hex: &str) -> Rgba<u8> {
     return Rgba([red, green, blue, alpha]);
 }
 
+/// Returns how many edges a pixel has
+/// An edge is when the pixel next to it is:
+/// 1. Outside the image
+/// 2. has the rgba value (0, 0, 0, 0) = fully transparent png pixel
 fn edges_of_pixel(x: u32, y: u32, img: &DynamicImage) -> u32 {
     let mut edges: u32 = 0;
 
-    if x == 0 || x == img.width() - 1 {
-        edges += 1;
-    }
+    let conditions = [
+        x == 0 || x == img.width() - 1,
+        y == 0 || y == img.height() - 1,
+        x != img.width() - 1 && img.get_pixel(x + 1, y) == Rgba([0, 0, 0, 0]),
+        x != 0 && img.get_pixel(x - 1, y) == Rgba([0, 0, 0, 0]),
+        y != img.height() - 1 && img.get_pixel(x, y + 1) == Rgba([0, 0, 0, 0]),
+        y != 0 && img.get_pixel(x, y - 1) == Rgba([0, 0, 0, 0]),
+    ];
 
-    if y == 0 || y == img.height() - 1 {
-        edges += 1;
-    }
-
-    if x != img.width() - 1 && img.get_pixel(x + 1, y) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
-    }
-
-    if x != 0 && img.get_pixel(x - 1, y) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
-    }
-
-    if y != img.height() - 1 && img.get_pixel(x, y + 1) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
-    }
-
-    if y != 0 && img.get_pixel(x, y - 1) == Rgba([0, 0, 0, 0]) {
-        edges += 1;
+    for condition in conditions {
+        if condition {
+            edges += 1;
+        }
     }
 
     return edges;
