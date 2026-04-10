@@ -95,13 +95,12 @@ fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
     if res.len() != 2 {
         panic!("invalid downscale resolution, please use ex. 16x16")
     }
-
     let width = res[0]
         .parse::<u32>()
-        .expect("downscale resolution has to consist of integers");
+        .expect("downscale resolution has to consist of positive integers, ex. 16x16");
     let height = res[1]
         .parse::<u32>()
-        .expect("downscale resolution has to consist of integers");
+        .expect("downscale resolution has to consist of positive integers, ex. 16x16");
 
     let resized_image = img.resize(width, height, Nearest);
 
