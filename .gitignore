@@ -1,4 +1,5 @@
 /target
+/cargo
 
 # vscode stuff
 .vscode
@@ -6,6 +7,8 @@
 #image folders
 test_images
 downscaled_images
+recolored_images
 
 #mac stuff
 .DS_store
+.DS_Store
