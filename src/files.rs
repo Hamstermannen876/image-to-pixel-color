@@ -1,7 +1,11 @@
 use crate::utils::*;
 use csv;
 use image::{self, DynamicImage, GenericImageView, Pixel, Rgba, imageops::FilterType::Nearest};
-use std::{collections::HashMap, path, u32};
+use std::{collections::HashMap, fs, path::{self}, u32};
+use std::io::ErrorKind;
+
+const COLOR_IMAGES_PATH: &str = "./recolored_images";
+const DOWNSCALED_IMAGES_PATH: &str = "./downscaled_images";
 
 pub fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
     let res: Vec<&str> = new_resolution.split("x").collect();
@@ -17,11 +21,23 @@ pub fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImag
 
     let resized_image = img.resize(width, height, Nearest);
 
+    if let Err(e) = fs::create_dir(DOWNSCALED_IMAGES_PATH) {
+        match e.kind() {
+            ErrorKind::AlreadyExists => (),
+            ErrorKind::PermissionDenied => {
+                panic!("did not have permission to create {DOWNSCALED_IMAGES_PATH}");
+            }
+            _ => {
+                panic!("Unexpected error {:?}", e);
+            }
+        }
+    };
+
     let new_file_path =
-        path::PathBuf::from(format!("./downscaled_images/{}-image.png", new_resolution));
+        path::PathBuf::from(format!("{DOWNSCALED_IMAGES_PATH}/{new_resolution}-image.png"));
     match resized_image.save(new_file_path) {
         Ok(_) => {}
-        Err(msg) => println!("{msg}, BUUUUU"),
+        Err(msg) => println!("{msg}\nCould not create the new resolution image "),
     }
 
     return resized_image;
@@ -40,7 +56,19 @@ pub fn make_image(img: &DynamicImage, color_lookup: &HashMap<Rgba<u8>, Rgba<u8>>
         new_image.put_pixel(x, y, *color_lookup.get(&color).unwrap());
     }
 
-    let path = path::PathBuf::from(format!("./recolored_images/{}-color-image.png", amount));
+    if let Err(e) = fs::create_dir(COLOR_IMAGES_PATH) {
+        match e.kind() {
+            ErrorKind::AlreadyExists => (),
+            ErrorKind::PermissionDenied => {
+                panic!("did not have permission to create {COLOR_IMAGES_PATH}");
+            }
+            _ => {
+                panic!("Unexpected error {:?}", e);
+            }
+        }
+    };
+
+    let path = path::PathBuf::from(format!("{COLOR_IMAGES_PATH}/{amount}-color-image.png"));
     if let Err(msg) = new_image.save(path) {
         println!("Could not make the reduced color image: {}", msg);
     };
