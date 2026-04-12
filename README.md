@@ -24,7 +24,7 @@ The downscaled image will apear in the directory ```downscaled_images```, showca
 ```
 cargo run --release example.png -r 16x16
 ```
-This will resize the example.png image to 16x16 and a file named ```16x16.png``` will be saved in the directory ```downscaled_images```
+This will resize the example.png image to 16x16 and a file named ```16x16-example.png``` will be saved in the directory ```downscaled_images```
 
 #### -m | --max
 Reduces the amount of colors in the image to the number specified. If the number provided is larger than the images color amount this flag will simply be ignored. This will also produce a showcase image located in the directory ```recolored_images```.
@@ -33,7 +33,7 @@ Reduces the amount of colors in the image to the number specified. If the number
 ```
 cargo run --release example.jpg --max 8
 ```
-This will reduce the example.png image colors to 8 and a file named ```8-color-image.png``` will be saved in the directory ```recolored_images```.
+This will reduce the example.png image colors to 8 and a file named ```8-color-example.jpg``` will be saved in the directory ```recolored_images```.
 
 ## 3D-requirement
 ### Formula
