@@ -9,6 +9,7 @@ pub fn reduce_colors(
     colors: &HashMap<Rgba<u8>, (u32, u32, u32)>,
     amount: usize,
     img: &DynamicImage,
+    image_name: &str,
 ) -> HashMap<Rgba<u8>, (u32, u32, u32)> {
     let length = colors.len();
     if amount >= length {
@@ -110,7 +111,7 @@ pub fn reduce_colors(
         }
     }
 
-    make_image(img, &color_lookup, amount);
+    make_image(img, &color_lookup, amount, image_name);
 
     let mut return_map = HashMap::<Rgba<u8>, (u32, u32, u32)>::new();
 

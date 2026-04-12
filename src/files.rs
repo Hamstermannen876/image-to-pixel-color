@@ -1,13 +1,18 @@
 use crate::utils::*;
 use csv;
 use image::{self, DynamicImage, GenericImageView, Pixel, Rgba, imageops::FilterType::Nearest};
-use std::{collections::HashMap, fs, path::{self}, u32};
 use std::io::ErrorKind;
+use std::{
+    collections::HashMap,
+    fs,
+    path::{self},
+    u32,
+};
 
 const COLOR_IMAGES_PATH: &str = "./recolored_images";
 const DOWNSCALED_IMAGES_PATH: &str = "./downscaled_images";
 
-pub fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImage {
+pub fn down_scale_image(img: &DynamicImage, new_resolution: &str, file_name: &str) -> DynamicImage {
     let res: Vec<&str> = new_resolution.split("x").collect();
     if res.len() != 2 {
         panic!("invalid downscale resolution, please use ex. 16x16")
@@ -33,8 +38,9 @@ pub fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImag
         }
     };
 
-    let new_file_path =
-        path::PathBuf::from(format!("{DOWNSCALED_IMAGES_PATH}/{new_resolution}-image.png"));
+    let new_file_path = path::PathBuf::from(format!(
+        "{DOWNSCALED_IMAGES_PATH}/{new_resolution}-{file_name}"
+    ));
     match resized_image.save(new_file_path) {
         Ok(_) => {}
         Err(msg) => println!("{msg}\nCould not create the new resolution image "),
@@ -43,7 +49,12 @@ pub fn down_scale_image(img: &DynamicImage, new_resolution: &str) -> DynamicImag
     return resized_image;
 }
 
-pub fn make_image(img: &DynamicImage, color_lookup: &HashMap<Rgba<u8>, Rgba<u8>>, amount: usize) {
+pub fn make_image(
+    img: &DynamicImage,
+    color_lookup: &HashMap<Rgba<u8>, Rgba<u8>>,
+    amount: usize,
+    file_name: &str,
+) {
     let mut new_image =
         DynamicImage::new(img.width(), img.height(), image::ColorType::Rgba8).to_rgba8();
     for (x, y, color) in img.pixels() {
@@ -68,7 +79,7 @@ pub fn make_image(img: &DynamicImage, color_lookup: &HashMap<Rgba<u8>, Rgba<u8>>
         }
     };
 
-    let path = path::PathBuf::from(format!("{COLOR_IMAGES_PATH}/{amount}-color-image.png"));
+    let path = path::PathBuf::from(format!("{COLOR_IMAGES_PATH}/{amount}-color-{file_name}"));
     if let Err(msg) = new_image.save(path) {
         println!("Could not make the reduced color image: {}", msg);
     };

@@ -19,6 +19,11 @@ fn main() {
     }
 
     let image_path = path::PathBuf::from(args[1].as_str());
+    let image_name = match image_path.file_name() {
+        Some(name) => name.to_str().unwrap(),
+        None => panic!("could not find a valid image file name"),
+    };
+
     let img_reader = match image::ImageReader::open(&image_path) {
         Err(_) => panic!("could not find an image at the path {:?}", image_path),
         Ok(reader) => reader,
@@ -27,7 +32,7 @@ fn main() {
     if let Ok(mut img) = img_reader.decode() {
         for i in (2..args.len()).step_by(2) {
             match args[i].as_str() {
-                "-r" | "--resolution" => img = down_scale_image(&img, &args[i + 1]),
+                "-r" | "--resolution" => img = down_scale_image(&img, &args[i + 1], image_name),
                 "-m" | "--max" => {
                     max_colors = args[i + 1]
                         .parse()
@@ -40,7 +45,7 @@ fn main() {
         let mut colors = get_pixel_info(&img);
 
         if max_colors != 0 {
-            colors = reduce_colors(&colors, max_colors, &img);
+            colors = reduce_colors(&colors, max_colors, &img, image_name);
         }
 
         make_csv_file(colors);
