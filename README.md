@@ -1,5 +1,12 @@
 # image-to-pixel-color
-Useful for 3D pixelart. It takes in an PNG image and counts the pixel amount as well as calculates the number of rectangles one will need to make the 3D pixel art. This is outputted via a csv file
+Useful for 3D pixelart. It takes in an image and counts the amount of pixels, sorts them by color as well as calculates the number of rectangles one will need to make it as 3D pixel art. The data is then outputted in a csv file
+
+## CSV file structure
+|color|count|edges|3D-requirement|
+|:-   |  -  |  -  |           -: |
+| HEX |  6  |  0  |      48      |
+|     |     | ... |              |
+|total| 256 | 64  |     2112     |
 
 ## How to use
 Download the project and the run:
