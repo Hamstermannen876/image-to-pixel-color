@@ -11,21 +11,33 @@ Useful for 3D pixelart. It takes in an image and counts the amount of pixels, so
 ## How to use
 Download the project and the run:
 ```
-cargo run --release <PNGF_filepath> 
+cargo run --release <image_filepath> 
 ```
 This will output a ```color_data.csv``` that contains the colors, their count and the 3D-requirement (explained below)
 
 ### Flags / Command-line arguments
-#### -r | --resolution <resolution>
+#### -r | --resolution
 Downscales the inputed image into an image of size eg. 16x16. This is very useful if you have some sort of pixelart that you know is eg. 16x16 but the image is eg. 512x512.  
-The downscaled image will apear in the directory ```downscaled_images```, showcasing the image the program counted the pixels.
+The downscaled image will apear in the directory ```downscaled_images```, showcasing the image the program counted the pixels.  
+  
+##### Example:
+```
+cargo run --release example.png -r 16x16
+```
+This will resize the example.png image to 16x16 and a file named ```16x16.png``` will be saved in the directory ```downscaled_images```
 
 #### -m | --max
 Reduces the amount of colors in the image to the number specified. If the number provided is larger than the images color amount this flag will simply be ignored. This will also produce a showcase image located in the directory ```recolored_images```.
 
+##### Example:
+```
+cargo run --release example.jpg --max 8
+```
+This will reduce the example.png image colors to 8 and a file named ```8-color-image.png``` will be saved in the directory ```recolored_images```.
+
 ## 3D-requirement
 ### Formula
-```3D-req = pixel_amount * 8 + numer_of_edges```
+```3D-req = pixel_amount * 8 + number_of_edges```
 
 ### Origin
 Useful when using the technique specified in this video: https://youtu.be/U66X3PisXU4  
