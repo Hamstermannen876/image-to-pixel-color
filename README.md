@@ -34,6 +34,8 @@ Reduces the amount of colors in the image to the number specified. If the number
 cargo run --release example.jpg --max 8
 ```
 This will reduce the example.png image colors to 8 and a file named ```8-color-example.jpg``` will be saved in the directory ```recolored_images```.
+  
+No matter what flags are used a color_data.csv will be generated after all flags have been applied so if both -m and -r are used then the csv will contain the reduced colors from the resized image.
 
 ## 3D-requirement
 ### Formula
